@@ -1,0 +1,35 @@
+name: Build Clang with tc-build and Push to Repo
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-clang:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout tc-build
+      run: |
+        git clone https://github.com/ClangBuiltLinux/tc-build.git
+        cd tc-build
+        ./build-llvm.py \
+          --clang-vendor "Ekqi" \
+          --projects "clang;lld;compiler-rt" \
+          --targets "AArch64" \
+          --install-folder ../clang \
+          --no-ccache
+
+    - name: Prepare clang repo
+      run: |
+        git config --global user.name "qiluawithcoffe"
+        git config --global user.email "killuak212@gmail.com"
+
+        git clone https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/qiluawithcoffe/qclang.git qclang
+        rm -rf qclang*
+
+        cp -r clang/* qclang/
+
+        cd clang-prebuilt
+        git add .
+        git commit -m "Update prebuilt clang $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+        git push origin main
