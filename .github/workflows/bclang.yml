@@ -1,0 +1,49 @@
+name: Build and Push Clang Binary
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-clang:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout empty repo
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y ninja-build ccache
+        
+    - name: Clone LLVM upstream
+      run: |
+        git clone --depth=1 https://github.com/llvm/llvm-project.git
+        
+    - name: Build stable Clang with tc-build
+      run: |
+        git clone https://github.com/ClangBuiltLinux/tc-build
+        cd tc-build
+        ./build-llvm.py \
+          --linux-targets "AArch64" \
+          --no-pgo \
+          --llvm-version 17.0.6 \
+          --install-folder $GITHUB_WORKSPACE/clang
+          
+    - name: Initialize git repo in clang install dir
+      run: |
+        cd clang
+        git init
+        git config --global user.name "qiluawithcoffe"
+        git config --global user.email "killuak212@gmail.com"
+        git lfs install
+        git lfs track "bin/*" "lib/*"
+        git add .gitattributes
+        git add .
+        git commit -m "Automated clang build"
+        git branch -M main
+        
+    - name: Push clang binary to binary repo
+      run: |
+        cd clang
+        git remote add origin https://${{ secrets.GH_TOKEN }}@@github.com/qiluawithcoffe/qclang.git
+        git push -f origin main
