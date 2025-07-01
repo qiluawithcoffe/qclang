@@ -9,15 +9,6 @@ jobs:
     steps:
     - name: Checkout empty repo
       uses: actions/checkout@v4
-
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y ninja-build ccache
-        
-    - name: Clone LLVM upstream
-      run: |
-        git clone --depth=1 https://github.com/llvm/llvm-project.git
         
     - name: Build stable Clang with tc-build
       run: |
