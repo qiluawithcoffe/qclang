@@ -1,4 +1,4 @@
-name: Build and Push Clang Binary
+name: Build and Push Clang 18 Stable
 
 on:
   workflow_dispatch:
@@ -9,20 +9,30 @@ jobs:
     steps:
     - name: Checkout empty repo
       uses: actions/checkout@v4
-        
-    - name: Build stable Clang with tc-build
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y ccache
+
+    - name: Clone tc-build
       run: |
         git clone https://github.com/ClangBuiltLinux/tc-build
+        cd tc-build
+        git checkout main  # pastikan pakai versi tc-build terbaru
+
+    - name: Build Clang 18.1.7 stable
+      run: |
         cd tc-build
         ./build-llvm.py \
           --linux-targets "AArch64" \
           --no-pgo \
           --llvm-version 18.1.7 \
           --install-folder $GITHUB_WORKSPACE/clang
-          
+
     - name: Initialize git repo in clang install dir
       run: |
-        cd clang
+        cd $GITHUB_WORKSPACE/clang
         git init
         git config --global user.name "qiluawithcoffe"
         git config --global user.email "killuak212@gmail.com"
@@ -30,11 +40,11 @@ jobs:
         git lfs track "bin/*" "lib/*"
         git add .gitattributes
         git add .
-        git commit -m "Automated clang build"
+        git commit -m "Automated clang 18.1.7 build"
         git branch -M main
-        
+
     - name: Push clang binary to binary repo
       run: |
-        cd clang
-        git remote add origin https://${{ secrets.GH_TOKEN }}@@github.com/qiluawithcoffe/qclang.git
+        cd $GITHUB_WORKSPACE/clang
+        git remote add origin https://${{ secrets.GH_TOKEN }}@github.com/qiluawithcoffe/qclang.git
         git push -f origin main
