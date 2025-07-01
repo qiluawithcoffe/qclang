@@ -35,9 +35,10 @@ jobs:
         git init
         git config --global user.name "qiluawithcoffe"
         git config --global user.email "killuak212@gmail.com"
-        git lfs install
         git lfs track "bin/*" "lib/*"
         git add .gitattributes
+        git rm --cached -r bin lib || true
+        git add bin lib
         git add .
         git commit -m "Automated clang 18.1.7 build"
         git branch -M main
