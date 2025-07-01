@@ -25,9 +25,8 @@ jobs:
       run: |
         cd tc-build
         ./build-llvm.py \
-          --linux-targets "AArch64" \
-          --no-pgo \
-          --llvm-version 18.1.7 \
+          --targets "AArch64" \
+          -r llvmorg-18.1.7 \
           --install-folder $GITHUB_WORKSPACE/clang
 
     - name: Initialize git repo in clang install dir
