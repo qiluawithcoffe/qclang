@@ -13,7 +13,6 @@ jobs:
         git clone https://github.com/ClangBuiltLinux/tc-build.git
         cd tc-build
         ./build-llvm.py \
-          --clang-vendor "MyKernel" \
           --projects "clang;lld;compiler-rt" \
           --targets "AArch64" \
           --install-folder ../clang \
